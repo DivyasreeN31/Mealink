@@ -13,7 +13,7 @@ export interface User {
 export interface Item {
   id: string;
   title: string;
-  category: 'food' | 'clothes' | 'utensils';
+  category: 'food' | 'clothes' | 'products';
   description: string;
   quantity: number;
   imageUrl: string;

@@ -11,6 +11,9 @@ import {
 import { auth } from '../firebase/config';
 import { authAPI } from '../services/api'; // For MongoDB user data
 
+// Debug import
+console.log('🔍 AuthContext - authAPI:', authAPI);
+
 const AuthContext = createContext(undefined);
 
 const useAuth = () => {
@@ -39,6 +42,17 @@ export const AuthProvider = ({ children }) => {
       if (firebaseUser) {
         // Store Firebase UID for API calls
         localStorage.setItem('firebaseUID', firebaseUser.uid);
+        
+        // Store complete Firebase user data for backend access
+        const firebaseUserData = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          phoneNumber: firebaseUser.phoneNumber,
+          providerData: firebaseUser.providerData
+        };
+        localStorage.setItem('firebaseUser', JSON.stringify(firebaseUserData));
         
         try {
           // Get additional user data from MongoDB
@@ -92,6 +106,7 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(null);
         setIsGuest(false);
         localStorage.removeItem('firebaseUID'); // Clear Firebase UID
+        localStorage.removeItem('firebaseUser'); // Clear Firebase user data
         console.log('AuthContext: User signed out');
       }
       setLoading(false);

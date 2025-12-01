@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User, Package, Users, UserCircle } from 'lucide-react';
+import { LogOut, User, Package, Users, UserCircle, AlertTriangle } from 'lucide-react';
 import Login from './auth/Login';
 import Signup from './auth/Signup';
 import Profile from './Profile';
+import RequestEssentialsForm from './RequestEssentialsForm';
 
 const Navigation = () => {
   const { currentUser, isGuest, userRole, setUserRole, logout, exitGuestMode } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [showRequestForm, setShowRequestForm] = useState(false);
 
   const handleRoleToggle = (role) => {
     setUserRole(role);
@@ -75,6 +77,19 @@ const Navigation = () => {
 
             {/* Right Side - Auth & Profile */}
             <div className="flex items-center space-x-3">
+              {/* Request Essentials Button */}
+              {!isGuest && (
+                <button
+                  onClick={() => setShowRequestForm(true)}
+                  className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium shadow-sm"
+                  title="Request Essentials for Disaster Situations"
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="hidden sm:inline">Request Essentials</span>
+                  <span className="sm:hidden">Request</span>
+                </button>
+              )}
+
               {isGuest && (
                 <>
                   <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full font-medium border border-gray-200">
@@ -161,6 +176,19 @@ const Navigation = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Request Essentials Modal */}
+      {showRequestForm && (
+        <RequestEssentialsForm
+          onClose={() => setShowRequestForm(false)}
+          onSuccess={(request) => {
+            console.log('Request created successfully:', request);
+            setShowRequestForm(false);
+            // Dispatch custom event to refresh requests list
+            window.dispatchEvent(new CustomEvent('requestCreated', { detail: request }));
+          }}
+        />
       )}
     </>
   );

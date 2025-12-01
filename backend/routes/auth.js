@@ -9,19 +9,41 @@ const router = express.Router();
 // Register user (for Firebase auth)
 router.post('/register', [
   body('email').isEmail().normalizeEmail(),
-  body('displayName').trim().isLength({ min: 2 })
+  body('displayName').trim().isLength({ min: 2 }),
+  body('firebaseUid').notEmpty().withMessage('Firebase UID is required')
 ], async (req, res) => {
   try {
+    console.log('📝 Registration request received:', req.body);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
-      return res.status(400).json({ errors: errors.array() });
+      console.log('❌ Validation errors:', errors.array());
+      return res.status(400).json({ 
+        error: 'Validation failed',
+        details: errors.array(),
+        received: req.body
+      });
     }
 
     const { email, displayName, phone, address, firebaseUid, isGoogleUser } = req.body;
-    console.log('Registering user:', { email, displayName, firebaseUid, isGoogleUser });
+    console.log('✅ Validated user data:', { email, displayName, firebaseUid, isGoogleUser });
+
+    // Ensure required fields are present
+    if (!email || !displayName || !firebaseUid) {
+      console.log('❌ Missing required fields:', { email: !!email, displayName: !!displayName, firebaseUid: !!firebaseUid });
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        missing: {
+          email: !email,
+          displayName: !displayName,
+          firebaseUid: !firebaseUid
+        },
+        received: req.body
+      });
+    }
 
     // Check if user already exists by email or firebaseUid
+    console.log('🔍 Checking for existing user...');
     const existingUser = await User.findOne({
       $or: [
         { email },
@@ -30,12 +52,18 @@ router.post('/register', [
     });
     
     if (existingUser) {
-      console.log('User already exists, updating Firebase UID if needed');
+      console.log('✅ User already exists:', existingUser._id);
+      console.log('📝 Updating Firebase UID if needed...');
       // Update existing user with Firebase UID if needed
       if (firebaseUid && !existingUser.firebaseUid) {
-        existingUser.firebaseUid = firebaseUid;
-        await existingUser.save();
-        console.log('Updated existing user with Firebase UID');
+        try {
+          existingUser.firebaseUid = firebaseUid;
+          await existingUser.save();
+          console.log('✅ Updated existing user with Firebase UID');
+        } catch (updateError) {
+          console.error('❌ Error updating existing user:', updateError);
+          throw new Error(`Failed to update existing user: ${updateError.message}`);
+        }
       }
       
       const userResponse = {
@@ -61,8 +89,8 @@ router.post('/register', [
     const userData = {
       email,
       displayName,
-      phone,
-      address,
+      phone: phone || '',
+      address: address || '',
       firebaseUid
     };
 
@@ -71,10 +99,17 @@ router.post('/register', [
       userData.password = req.body.password;
     }
 
-    console.log('Creating new user with data:', userData);
-    const user = new User(userData);
-    await user.save();
-    console.log('New user created successfully:', user._id);
+    console.log('📝 Creating new user with data:', userData);
+    
+    try {
+      const user = new User(userData);
+      await user.save();
+      console.log('✅ New user created successfully:', user._id);
+    } catch (saveError) {
+      console.error('❌ Error saving user to database:', saveError);
+      console.error('❌ Validation errors:', saveError.errors);
+      throw new Error(`Database save failed: ${saveError.message}`);
+    }
 
     // Return user data (without password)
     const userResponse = {
@@ -96,7 +131,11 @@ router.post('/register', [
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Server error during registration', details: error.message });
+    res.status(500).json({ 
+      error: 'Server error during registration', 
+      details: error.message,
+      received: req.body
+    });
   }
 });
 

@@ -111,9 +111,9 @@ const ItemsGrid = () => {
         },
         {
           _id: 'demo-3',
-          title: 'Kitchen Utensils Set',
-          category: 'utensils',
-          description: 'Complete set of kitchen utensils in good condition.',
+                  title: 'Kitchen Products Set',
+        category: 'products',
+        description: 'Complete set of kitchen products in good condition.',
           quantity: 1,
           imageUrl: 'https://images.pexels.com/photos/2641886/pexels-photo-2641886.jpeg?auto=compress&cs=tinysrgb&w=500',
           location: {
@@ -276,9 +276,9 @@ const ItemsGrid = () => {
               className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white min-w-[140px]"
             >
               <option value="all">All Categories</option>
-              <option value="food">🍽️ Food</option>
-              <option value="clothes">👕 Clothes</option>
-              <option value="utensils">🍴 Utensils</option>
+              <option value="food">Food</option>
+              <option value="clothes">Clothes</option>
+              <option value="products">Products</option>
             </select>
 
             <select
@@ -288,7 +288,7 @@ const ItemsGrid = () => {
             >
               <option value="all">All Cities</option>
               {tamilNaduCities.map(city => (
-                <option key={city} value={city}>📍 {city}</option>
+                <option key={city} value={city}>{city}</option>
               ))}
             </select>
 
@@ -299,10 +299,10 @@ const ItemsGrid = () => {
                 className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 text-sm bg-white min-w-[140px]"
               >
                 <option value="all">All Distances</option>
-                <option value="2">📍 Within 2 km</option>
-                <option value="5">📍 Within 5 km</option>
-                <option value="10">📍 Within 10 km</option>
-                <option value="20">📍 Within 20 km</option>
+                <option value="2">Within 2 km</option>
+                <option value="5">Within 5 km</option>
+                <option value="10">Within 10 km</option>
+                <option value="20">Within 20 km</option>
               </select>
             )}
 
@@ -341,7 +341,7 @@ const ItemsGrid = () => {
         </h2>
         {userLocation && (
           <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
-            📍 Sorted by distance
+            Sorted by distance
           </span>
         )}
       </div>
