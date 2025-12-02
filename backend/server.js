@@ -13,6 +13,7 @@ if (fs.existsSync(envPath)) {
   dotenv.config();
 }
 
+
 const app = express();
 
 // Middleware
@@ -108,28 +109,12 @@ app.get('/api/debug', async (req, res) => {
 });
 
 // Start server with automatic fallback if the port is busy
-const DEFAULT_PORT = Number(process.env.PORT) || 8000;
-const MAX_PORT_TRIES = 5;
+const PORT = process.env.PORT || 8000;
 
-function startServer(port, attempt = 1) {
-  const server = app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
 
-  server.on('error', (err) => {
-    if (err && err.code === 'EADDRINUSE' && attempt < MAX_PORT_TRIES) {
-      const nextPort = port + 1;
-      console.warn(`Port ${port} is in use. Trying port ${nextPort}... (${attempt}/${MAX_PORT_TRIES - 1})`);
-      startServer(nextPort, attempt + 1);
-    } else if (err && err.code === 'EADDRINUSE') {
-      console.error(`All attempted ports are busy (tried ${MAX_PORT_TRIES} ports starting from ${DEFAULT_PORT}).`);
-      process.exit(1);
-    } else if (err) {
-      console.error('Server failed to start:', err);
-      process.exit(1);
-    }
-  });
-}
 
 startServer(DEFAULT_PORT);
 
