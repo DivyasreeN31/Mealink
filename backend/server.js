@@ -116,7 +116,6 @@ app.listen(PORT, () => {
 });
 
 
-startServer(DEFAULT_PORT);
 
 // Schedule automatic cleanup of expired food items and requests every hour
 function scheduleCleanup() {
