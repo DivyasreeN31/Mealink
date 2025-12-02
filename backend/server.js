@@ -27,7 +27,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const providedMongoUri = process.env.MONGO_URI;
 const mongoUri = providedMongoUri && !/</.test(providedMongoUri)
   ? providedMongoUri
-  : 'mongodb://127.0.0.1:27017/donation-app';
+  : 'mongodb+srv://divyasreen31_db_user:DBMS123@mealink.onreljf.mongodb.net/?appName=mealink';
 
 console.log('🔍 MongoDB URI:', mongoUri);
 console.log('🔍 Environment MONGO_URI:', process.env.MONGO_URI);
